@@ -2,24 +2,25 @@ create database pokedexdb;
 
 create table raw_whole_pokedex(
     id serial primary key,
-    pokemonUrl text not null
+    name text not null,
+    url text not null,
 );
 
 create table whole_pokedex(
     id serial primary key,
-    abilities json [] not null,
+    abilities text not null,
     base_xp int not null,
-    forms array not null,
-    game_indices json [] not null,
+    forms text not null,
+    game_indices text not null,
     height int not null,
-    held_items json [] not null,
-    id int not null,
+    held_items text not null,
+    dexid int not null,
     is_default boolean not null,
     location_area_encounters text not null,
-    moves json [] not null,
-    species json not null,
-    sprites json not null,
-    stats json [] not null,
-    types json [] not null,
+    moves text not null,
+    species text not null,
+    sprites text not null,
+    stats text not null,
+    types text not null,
     weight int not null
 );
