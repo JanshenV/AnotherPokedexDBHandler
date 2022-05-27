@@ -9,7 +9,7 @@ async function handleRawNationalPokedex(req, res, next) {
 
         if (existingRawNationalPokedex.length) return next();
 
-        const rawPokedexRequest = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1126&offset=0');
+        const rawPokedexRequest = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1126');
 
         if (!rawPokedexRequest.ok) throw "Error on rawPokedexRequest";
 
