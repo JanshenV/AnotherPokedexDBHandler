@@ -3,11 +3,18 @@ const routes = express();
 
 //Middleware
 const handleRawPokedex = require('./middleware/handleRawPokedex');
-const handlePokedex = require('./middleware/handlePokedex');
+const handleNationalDex = require('./middleware/handleNationalPokedex');
+const {
+    handleKantoPokedex
+} = require('./middleware/regionalPokedex');
 
-//Using these two middleware for populating the rawPokedex and the fullPokedex where I save all the info into my database instead of making requests to the PokeAPI;
+//National Pokedex
 routes.use(handleRawPokedex);
-routes.use(handlePokedex);
+routes.use(handleNationalDex);
+
+//Regional Pokedex
+routes.use(handleKantoPokedex);
+
 
 //req function for testing
 routes.get('/hey', (req, res) => {

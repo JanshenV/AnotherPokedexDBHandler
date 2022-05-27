@@ -1,23 +1,26 @@
 const knex = require('../database/connection');
 const fetch = require('node-fetch');
 
-async function handlePokedex(req, res, next) {
+async function handleNationalDex(req, res, next) {
     try {
-        const existingPokedex = await knex('whole_pokedex')
+        const existingNationalPokedex = await
+        knex('national_pokedex')
             .select('*');
 
-        if (existingPokedex.length) return next();
+        if (existingNationalPokedex.length) return next();
 
-        const rawPokedex = await knex('raw_whole_pokedex')
+        const rawNationalPokedex = await
+        knex('raw_national_pokedex')
             .select('url');
 
-        for (let pokemonUrl of rawPokedex) {
+        for (let pokemonUrl of rawNationalPokedex) {
             const { url } = pokemonUrl;
             const pokemonRequest = await fetch(`${url}`);
 
             if (!pokemonRequest.ok) throw "error on fetching individual pokemon";
 
             const {
+                name,
                 abilities,
                 base_experience,
                 forms,
@@ -46,9 +49,9 @@ async function handlePokedex(req, res, next) {
             const stringFyTypes = JSON.stringify(types);
             const stringFyStats = JSON.stringify(stats);
 
-
-            await knex('whole_pokedex')
+            await knex('national_pokedex')
                 .insert({
+                    name,
                     abilities: stringFyAbilities,
                     base_xp: base_experience,
                     forms: stringFyForms,
@@ -73,4 +76,4 @@ async function handlePokedex(req, res, next) {
     };
 };
 
-module.exports = handlePokedex;
+module.exports = handleNationalDex;

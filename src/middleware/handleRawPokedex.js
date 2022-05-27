@@ -1,19 +1,22 @@
 const knex = require('../database/connection');
 const fetch = require('node-fetch');
 
-async function handleRawPokedex(req, res, next) {
+async function handleRawNationalPokedex(req, res, next) {
     try {
-        const existingRawData = await knex('raw_whole_pokedex')
+        const existingRawNationalPokedex = await
+        knex('raw_national_pokedex')
             .select('*');
 
-        if (existingRawData.length) return next();
+        if (existingRawNationalPokedex.length) return next();
+
         const rawPokedexRequest = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1126&offset=0');
 
         if (!rawPokedexRequest.ok) throw "Error on rawPokedexRequest";
 
         const { results } = await rawPokedexRequest.json();
 
-        const insertingRawPokedex = await knex('raw_whole_pokedex')
+        const insertingRawPokedex = await
+        knex('raw_national_pokedex')
             .insert(results);
 
         return next();
@@ -23,4 +26,4 @@ async function handleRawPokedex(req, res, next) {
 };
 
 
-module.exports = handleRawPokedex;
+module.exports = handleRawNationalPokedex;
