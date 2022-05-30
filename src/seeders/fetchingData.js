@@ -92,7 +92,7 @@ async function fetchingRaw() {
             };
 
             if (dex_id > 898) {
-                await knex('raw_forms_variations_pokedex').insert(pokemonInfoData);
+                await knex('pokemon_variations').insert(pokemonInfoData);
             };
         };
     } catch ({ message }) {
