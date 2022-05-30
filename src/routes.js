@@ -1,10 +1,13 @@
 const express = require('express');
 const routes = express();
 
+//Controllers
+const {
+    regionalPokedex
+} = require('./controllers/pokedex');
 
-routes.get('/hey', (req, res) => {
-    res.status(200).json('hey')
-})
+
+routes.post('/regionalPokedex', regionalPokedex);
 
 
 module.exports = routes;
