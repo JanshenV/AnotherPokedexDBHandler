@@ -3,14 +3,11 @@ const fetch = require('node-fetch');
 
 async function fetchingRaw() {
     try {
-
         const existingRawPokedex = await knex('raw_pokedex')
             .select('*');
-
         if (existingRawPokedex.length) return;
 
         const rawPokedexRequest = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1126&offset=0');
-
         if (!rawPokedexRequest.ok) throw `Error fetching rawPokedex`;
 
         const { results } = await rawPokedexRequest.json();
@@ -61,6 +58,42 @@ async function fetchingRaw() {
             };
 
             await knex('national_pokedex').insert(pokemonInfoData);
+
+            if (dex_id <= 151) {
+                await knex('kanto_pokedex').insert(pokemonInfoData);
+            };
+
+            if (dex_id >= 152 && dex_id <= 251) {
+                await knex('johto_pokedex').insert(pokemonInfoData);
+            };
+
+            if (dex_id >= 252 && dex_id <= 386) {
+                await knex('hoenn_pokedex').insert(pokemonInfoData);
+            };
+
+            if (dex_id >= 387 && dex_id <= 493) {
+                await knex('sinnoh_pokedex').insert(pokemonInfoData);
+            };
+
+            if (dex_id >= 494 && dex_id <= 649) {
+                await knex('unova_pokedex').insert(pokemonInfoData);
+            };
+
+            if (dex_id >= 650 && dex_id <= 721) {
+                await knex('kalos_pokedex').insert(pokemonInfoData);
+            };
+
+            if (dex_id >= 722 && dex_id <= 809) {
+                await knex('alola_pokedex').insert(pokemonInfoData);
+            };
+
+            if (dex_id >= 810 && dex_id <= 898) {
+                await knex('alola_pokedex').insert(pokemonInfoData);
+            };
+
+            if (dex_id > 898) {
+                await knex('raw_forms_variations_pokedex').insert(pokemonInfoData);
+            };
         };
     } catch ({ message }) {
         return console.log({ message });
@@ -68,6 +101,7 @@ async function fetchingRaw() {
 };
 
 
+
 module.exports = {
-    fetchingRaw
+    fetchingRaw,
 };

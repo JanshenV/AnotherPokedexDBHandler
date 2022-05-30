@@ -3,7 +3,7 @@ const app = require('./server');
 
 //Seeders
 const { runningMigrations } = require('./seeders/migrations');
-const { fetchingRaw } = require('./seeders/fetchingData');
+const { fetchingRaw, regionalPokedex } = require('./seeders/fetchingData');
 
 async function seedersFirst() {
     try {
