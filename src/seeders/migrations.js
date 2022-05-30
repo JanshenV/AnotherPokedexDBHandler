@@ -8,7 +8,6 @@ async function runningMigrations() {
 
         if (existingTables.length) return;
     } catch ({ message }) {
-        console.log({ message });
         const executingQueries = await knex.raw(schemas);
         return;
     };
