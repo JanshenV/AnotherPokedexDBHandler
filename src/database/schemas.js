@@ -1,4 +1,4 @@
-create database pokedexdb;
+const schemas = `
 
 create table raw_pokedex(
     id serial primary key,
@@ -8,6 +8,7 @@ create table raw_pokedex(
 
 create table national_pokedex(
     id serial primary key,
+    name varchar(120) not null,
     abilities text not null,
     base_experience int not null,
     forms text not null,
@@ -27,6 +28,7 @@ create table national_pokedex(
 
 create table kanto_pokedex(
     id serial primary key,
+        name varchar(120) not null,
     abilities text not null,
     base_experience int not null,
     forms text not null,
@@ -46,6 +48,7 @@ create table kanto_pokedex(
 
 create table johto_pokedex(
     id serial primary key,
+        name varchar(120) not null,
     abilities text not null,
     base_experience int not null,
     forms text not null,
@@ -65,6 +68,7 @@ create table johto_pokedex(
 
 create table hoenn_pokedex(
     id serial primary key,
+        name varchar(120) not null,
     abilities text not null,
     base_experience int not null,
     forms text not null,
@@ -84,6 +88,7 @@ create table hoenn_pokedex(
 
 create table sinnoh_pokedex(
     id serial primary key,
+        name varchar(120) not null,
     abilities text not null,
     base_experience int not null,
     forms text not null,
@@ -103,6 +108,7 @@ create table sinnoh_pokedex(
 
 create table unova_pokedex(
     id serial primary key,
+        name varchar(120) not null,
     abilities text not null,
     base_experience int not null,
     forms text not null,
@@ -122,6 +128,7 @@ create table unova_pokedex(
 
 create table kalos_pokedex(
     id serial primary key,
+        name varchar(120) not null,
     abilities text not null,
     base_experience int not null,
     forms text not null,
@@ -141,6 +148,7 @@ create table kalos_pokedex(
 
 create table alola_pokedex(
     id serial primary key,
+        name varchar(120) not null,
     abilities text not null,
     base_experience int not null,
     forms text not null,
@@ -160,6 +168,7 @@ create table alola_pokedex(
 
 create table galar_pokedex(
     id serial primary key,
+        name varchar(120) not null,
     abilities text not null,
     base_experience int not null,
     forms text not null,
@@ -177,3 +186,7 @@ create table galar_pokedex(
     weight int not null
 );
 
+`;
+
+
+module.exports = schemas;
