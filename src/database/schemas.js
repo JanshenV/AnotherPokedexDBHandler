@@ -286,26 +286,6 @@ create table pokemon_gmax(
     weight int not null
 );
 
-create table pokemon_other(
-    id serial primary key,
-        name varchar(120) not null,
-    abilities text not null,
-    base_experience int not null,
-    forms text not null,
-    game_indices text not null,
-    height int not null,
-    held_items text not null,
-    dex_id int not null,
-    is_default boolean not null,
-    location_area_encounters text not null,
-    moves text not null,
-    species text not null,
-    sprites text not null,
-    stats text not null,
-    types text not null,
-    weight int not null
-);
-
 `;
 
 
