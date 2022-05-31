@@ -190,9 +190,12 @@ async function filteringPokemonData(pokemonData) {
 
         if (errorMoves || errorTypes || errorSprites) throw 'Error filtering Pokemon Data';
 
+        const initialUpperCaseName =
+            `${pokemonData.name[0].toUpperCase()}${pokemonData.name.slice(1)}`;
+
         let newPokemonData = {
             dexnr: pokemonData.id,
-            name: pokemonData.name,
+            name: initialUpperCaseName,
             weight: pokemonData.weight,
             height: pokemonData.height,
             location_area_encounters: pokemonData.location_area_encounters,
