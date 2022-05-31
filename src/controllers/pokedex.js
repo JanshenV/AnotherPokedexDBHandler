@@ -68,6 +68,10 @@ async function pokedexRegion(req, res) {
             .andWhere('dexnr', '>=', secondArgument)
             .orderBy('dexnr');
 
+        if (!pokedex.length) return res.status(404).json({
+            message: 'Pokedex does not exist.'
+        });
+
         for (let pokemon of pokedex) {
             const {
                 jsonPokemonData, error
@@ -84,6 +88,42 @@ async function pokedexRegion(req, res) {
     };
 };
 
+async function pokemonVariation(req, res) {
+    let { pokemonName } = req.params;
+
+    if (!pokemonName) return res.status(400).json({
+        message: 'pokemonName is required.'
+    });
+
+    pokemonName = pokemonName.toLowerCase();
+    try {
+        const pokemonVariations = await knex('pokemon_variations')
+            .select('*')
+            .where('name', 'like', `${pokemonName}-%`);
+
+        if (!pokemonVariations.length) return res.status(404).json({
+            message: 'Pokemon does not exist.'
+        });
+
+        const jsonPokemonVariations = [];
+
+        for (let pokemon of pokemonVariations) {
+            const {
+                jsonPokemonData, error
+            } = await jsonParser(pokemon);
+
+            if (error) throw error;
+
+            jsonPokemonVariations.push(jsonPokemonData);
+        };
+
+        return res.status(200).json(jsonPokemonVariations);
+    } catch ({ message }) {
+        return res.status(500).json({ message });
+    };
+};
+
 module.exports = {
-    pokedexRegion
+    pokedexRegion,
+    pokemonVariation
 };
