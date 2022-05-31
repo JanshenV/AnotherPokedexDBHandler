@@ -24,8 +24,8 @@ async function fetchRawPokedex() {
                 pokemonurl
             });
         };
-    } catch ({ message }) {
-        return console.log({ message });
+    } catch (error) {
+        return error;
     };
 };
 
@@ -81,8 +81,8 @@ async function handleNationalPokedex() {
                     .insert(formatedPokemonData);
             };
         };
-    } catch ({ message }) {
-        return console.log({ message });
+    } catch (error) {
+        return error;
     };
 };
 
