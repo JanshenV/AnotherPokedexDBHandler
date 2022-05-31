@@ -4,12 +4,13 @@ const fetch = require('node-fetch');
 //Util
 const filteringPokemonData = require('../util/dataFilter');
 const stringfyData = require('../util/stringfyData');
-const handlingRegionalPokedex = require('../util/regionalPokedex');
 
-async function fetchingRaw() {
+
+async function fetchRawPokedex() {
     try {
         const existingRawPokedex = await knex('raw_pokedex')
             .select('*');
+
         if (existingRawPokedex.length) return;
 
         const rawPokedexRequest = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1126&offset=0');
@@ -28,16 +29,16 @@ async function fetchingRaw() {
     };
 };
 
-async function fetchingFromRaw() {
+async function handleNationalPokedex() {
     try {
         const rawPokedex = await knex('raw_pokedex')
             .select('*');
         if (!rawPokedex.length) throw 'Raw pokedex is empty';
 
-        const national_pokedex = await knex('national_pokedex')
+        const nationalPokedex = await knex('national_pokedex')
             .select('*');
 
-        if (national_pokedex.length) return;
+        if (nationalPokedex.length) return;
 
         for (let rawPokemon of rawPokedex) {
             const { pokemonurl: url } = rawPokemon;
@@ -46,6 +47,7 @@ async function fetchingFromRaw() {
             if (!pokemonUrlRequest.ok) throw "Pokemon url request error";
 
             const pokemonUrlResponse = await pokemonUrlRequest.json();
+
             const {
                 newPokemonData, error: filteringError
             } = await filteringPokemonData(pokemonUrlResponse);
@@ -56,7 +58,7 @@ async function fetchingFromRaw() {
             } = await stringfyData(newPokemonData);
             if (stringfyError) throw stringfyError;
 
-            const formatedValueForDb = {
+            const formatedPokemonData = {
                 name: stringfiedData.name,
                 dexnr: stringfiedData.dexnr,
                 weight: stringfiedData.weight,
@@ -70,7 +72,14 @@ async function fetchingFromRaw() {
                 stats: stringfiedData.stats,
                 sprites: stringfiedData.sprites,
             };
-            await handlingRegionalPokedex(formatedValueForDb);
+
+            if (formatedPokemonData.dexnr >= 899) {
+                await knex('pokemon_variations')
+                    .insert(formatedPokemonData);
+            } else {
+                await knex('national_pokedex')
+                    .insert(formatedPokemonData);
+            };
         };
     } catch ({ message }) {
         return console.log({ message });
@@ -78,8 +87,8 @@ async function fetchingFromRaw() {
 };
 
 async function fetchingData() {
-    await fetchingRaw();
-    await fetchingFromRaw();
+    await fetchRawPokedex();
+    await handleNationalPokedex();
 };
 
 module.exports = fetchingData;
