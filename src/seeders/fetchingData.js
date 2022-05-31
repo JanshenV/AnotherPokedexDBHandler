@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 //Util
 const filteringPokemonData = require('../util/dataFilter');
 const stringfyData = require('../util/stringfyData');
+const handlingRegionalPokedex = require('../util/regionalPokedex');
 
 async function fetchingRaw() {
     try {
@@ -32,6 +33,11 @@ async function fetchingFromRaw() {
         const rawPokedex = await knex('raw_pokedex')
             .select('*');
         if (!rawPokedex.length) throw 'Raw pokedex is empty';
+
+        const national_pokedex = await knex('national_pokedex')
+            .select('*');
+
+        if (national_pokedex.length) return;
 
         for (let rawPokemon of rawPokedex) {
             const { pokemonurl: url } = rawPokemon;
@@ -64,9 +70,7 @@ async function fetchingFromRaw() {
                 stats: stringfiedData.stats,
                 sprites: stringfiedData.sprites,
             };
-
-            await knex('national_pokedex')
-                .insert(formatedValueForDb);
+            await handlingRegionalPokedex(formatedValueForDb);
         };
     } catch ({ message }) {
         return console.log({ message });
