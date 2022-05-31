@@ -5,44 +5,50 @@ async function handlingRegionalPokedex(pokemonData) {
         await knex('national_pokedex')
             .insert(pokemonData);
 
-        if (pokemonData.id <= 151) {
+        if (pokemonData.dexnr <= 151) {
             await knex('kanto_pokedex')
                 .insert(pokemonData);
         };
-        if (pokemonData.id >= 152 && pokemonData.id <= 251) {
+        if (pokemonData.dexnr >= 152 && pokemonData.dexnr <= 251) {
             await knex('johto_pokedex')
                 .insert(pokemonData);
         };
 
-        if (pokemonData.id >= 252 && pokemonData.id <= 386) {
+        if (pokemonData.dexnr >= 252 && pokemonData.dexnr <= 386) {
             await knex('hoenn_pokedex')
                 .insert(pokemonData);
         };
 
-        if (pokemonData.id >= 387 && pokemonData.id <= 493) {
+        if (pokemonData.dexnr >= 387 && pokemonData.dexnr <= 493) {
             await knex('sinnoh_pokedex')
                 .insert(pokemonData);
         };
 
-        if (pokemonData.id >= 494 && pokemonData.id <= 649) {
+        if (pokemonData.dexnr >= 494 && pokemonData.dexnr <= 649) {
             await knex('unova_pokedex')
                 .insert(pokemonData);
         };
 
-        if (pokemonData.id >= 650 && pokemonData.id <= 721) {
+        if (pokemonData.dexnr >= 650 && pokemonData.dexnr <= 721) {
             await knex('kalos_pokedex')
                 .insert(pokemonData);
         };
 
-        if (pokemonData.id >= 722 && pokemonData.id <= 809) {
+        if (pokemonData.dexnr >= 722 && pokemonData.dexnr <= 809) {
             await knex('alola_pokedex')
                 .insert(pokemonData);
         };
 
-        if (pokemonData.id >= 810 && pokemonData.id <= 898) {
+        if (pokemonData.dexnr >= 810 && pokemonData.dexnr <= 898) {
             await knex('galar_pokedex')
                 .insert(pokemonData);
         };
+
+        if (pokemonData.dexnr >= 899) {
+            await knex('pokemon_variations')
+                .insert(pokemonData);
+        };
+
     } catch (error) {
         return console.log(error);
     };

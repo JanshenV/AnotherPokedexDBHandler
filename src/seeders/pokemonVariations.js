@@ -57,11 +57,9 @@ async function galarianFormsPokedex() {
 };
 
 async function callVariations() {
-
-    //Checking if the last table to be populated has data.
-    const galarianForms = await knex('pokemon_galarian')
+    const galarianPokemon = await knex('pokemon_galarian')
         .select('*');
-    if (galarianForms.length) return;
+    if (galarianPokemon.length) return;
 
     megasPokedex();
     gMaxPokedex();
