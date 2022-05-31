@@ -1,7 +1,7 @@
 const knex = require('../database/connection');
 
 async function variationsPokedex(variationName) {
-    if (!variationName) return { error: 'Argumente is necessary.' };
+    if (!variationName) return { error: 'VariationName is required.' };
 
     try {
         const variationPokedex = await knex('pokemon_variations')
