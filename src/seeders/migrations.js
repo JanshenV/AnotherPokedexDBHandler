@@ -13,6 +13,4 @@ async function runningMigrations() {
     };
 };
 
-module.exports = {
-    runningMigrations
-};
+module.exports = runningMigrations;
