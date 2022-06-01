@@ -9,7 +9,7 @@ async function seedersFirst() {
     try {
         await runningMigrations();
         await fetchingData();
-        app.listen(process.env.SERVER_PORT);
+        app.listen(process.env.SERVER_PORT || 2700);
     } catch ({ message }) {
         return console.log({ message });
     };
