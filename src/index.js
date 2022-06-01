@@ -9,11 +9,12 @@ async function seedersFirst() {
     try {
         await runningMigrations();
         await fetchingData();
-        app.listen(process.env.PORT || 80);
     } catch ({ message }) {
         return console.log({ message });
     };
 };
 
 seedersFirst();
+
+app.listen(process.env.PORT || 80);
 
