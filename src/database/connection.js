@@ -11,6 +11,7 @@ const knex = require('knex')({
         ssl: {
             rejectUnauthorized: false
         }
+
     }
 });
 
