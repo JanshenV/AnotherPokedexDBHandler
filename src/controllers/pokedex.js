@@ -88,6 +88,27 @@ async function pokedexRegion(req, res) {
     };
 };
 
+async function individualPokemon(req, res) {
+    let { pokemonName } = req.params;
+
+    if (!pokemonName) return res.status(404).json({
+        message: "Pokemon's name is required."
+    });
+    try {
+        const findPokemon = await knex('national_pokedex')
+            .where({ name: pokemonName })
+            .first();
+
+        if (!findPokemon) return res.status(404).json({
+            message: 'Pokemon does not exist'
+        });
+
+        return res.status(200).json(findPokemon);
+    } catch ({ message }) {
+        return res.status(500).json({ message });
+    };
+};
+
 async function pokemonVariation(req, res) {
     let { pokemonName } = req.params;
 
@@ -125,5 +146,6 @@ async function pokemonVariation(req, res) {
 
 module.exports = {
     pokedexRegion,
+    individualPokemon,
     pokemonVariation
 };
