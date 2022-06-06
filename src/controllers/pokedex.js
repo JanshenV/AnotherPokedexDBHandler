@@ -94,13 +94,14 @@ async function individualPokemon(req, res) {
     if (!pokemonName) return res.status(404).json({
         message: "Pokemon's name is required."
     });
+    pokemonName = pokemonName[0].toUpperCase() + pokemonName.slice(1).toLowerCase();
     try {
         const findPokemon = await knex('national_pokedex')
             .where({ name: pokemonName })
             .first();
 
         if (!findPokemon) return res.status(404).json({
-            message: 'Pokemon does not exist'
+            message: 'Pokemon does not exist',
         });
 
         return res.status(200).json(findPokemon);
