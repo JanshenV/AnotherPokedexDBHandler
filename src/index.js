@@ -16,5 +16,5 @@ async function seedersFirst() {
 
 seedersFirst();
 
-app.listen(process.env.SERVER_PORT);
+app.listen(process.env.PORT || 80);
 
