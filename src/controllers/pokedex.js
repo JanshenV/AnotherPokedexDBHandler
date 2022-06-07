@@ -98,6 +98,7 @@ async function individualPokemon(req, res) {
     try {
         const findPokemon = await knex('national_pokedex')
             .where({ name: pokemonName })
+            .orWhere({ dexnr: pokemonName })
             .first();
 
         if (!findPokemon) return res.status(404).json({
