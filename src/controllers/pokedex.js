@@ -96,14 +96,18 @@ async function individualPokemon(req, res) {
     });
     pokemonName = pokemonName[0].toUpperCase() + pokemonName.slice(1).toLowerCase();
     try {
-        const findPokemon = await knex('national_pokedex')
+        let findPokemon = await knex('national_pokedex')
             .where({ name: pokemonName })
-            .orWhere({ dexnr: pokemonName })
             .first();
 
-        if (!findPokemon) return res.status(404).json({
-            message: 'Pokemon does not exist',
-        });
+        if (!findPokemon) {
+            findPokemon = await knex('national_pokedex')
+                .where({ dexnr: pokemonName })
+                .first();
+            if (!findPokemon) return res.status(404).json({
+                message: 'Pokemon does not exist',
+            });
+        };
 
         const {
             jsonPokemonData, error
