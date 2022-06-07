@@ -104,7 +104,16 @@ async function individualPokemon(req, res) {
             message: 'Pokemon does not exist',
         });
 
-        return res.status(200).json(findPokemon);
+        const {
+            jsonPokemonData, error
+        } = await jsonParser(findPokemon);
+
+        if (error) throw error;
+
+        let jsonPokemon = [];
+        jsonPokemon.push(jsonPokemonData);
+
+        return res.status(200).json(jsonPokemon);
     } catch ({ message }) {
         return res.status(500).json({ message });
     };
