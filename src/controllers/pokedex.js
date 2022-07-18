@@ -81,7 +81,7 @@ async function pokedexRegion(req, res) {
 
             jsonPokedex.push(jsonPokemonData);
         };
-
+        res.set('Cache-Control', 'public, max-age=604800');
         return res.status(200).json(jsonPokedex);
     } catch (error) {
         return res.status(500).json(error);
@@ -118,6 +118,7 @@ async function individualPokemon(req, res) {
         let jsonPokemon = [];
         jsonPokemon.push(jsonPokemonData);
 
+        res.set('Cache-Control', 'public, max-age=604800');
         return res.status(200).json(jsonPokemon);
     } catch ({ message }) {
         return res.status(500).json({ message });
@@ -152,7 +153,7 @@ async function pokemonVariation(req, res) {
 
             jsonPokemonVariations.push(jsonPokemonData);
         };
-
+        res.set('Cache-Control', 'public, max-age=604800');
         return res.status(200).json(jsonPokemonVariations);
     } catch ({ message }) {
         return res.status(500).json({ message });
