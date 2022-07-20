@@ -65,7 +65,7 @@ async function filteringSprites(sprites) {
                         maleSprites.shiny_back.push(sprites[spriteName]);
                     };
 
-                    if (spriteName === 'front_default_female') {
+                    if (spriteName === 'front_female') {
                         femaleSprites.front.push(sprites[spriteName]);
                     };
 
@@ -104,7 +104,7 @@ async function filteringSprites(sprites) {
                         maleSprites.shiny_back.push(other[otherType][spriteName]);
                     };
 
-                    if (spriteName === 'front_default_female') {
+                    if (spriteName === 'front_female') {
                         femaleSprites.front.push(other[otherType][spriteName]);
                     };
 
@@ -144,7 +144,7 @@ async function filteringSprites(sprites) {
                             maleSprites.shiny_back.push(versions[generation][gameVersion][spriteName]);
                         };
 
-                        if (spriteName === 'front_default_female') {
+                        if (spriteName === 'front_female') {
                             femaleSprites.front.push(versions[generation][gameVersion][spriteName]);
                         };
 
