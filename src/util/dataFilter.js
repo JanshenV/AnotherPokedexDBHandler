@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');
+
 async function filteringMoves(moves) {
     try {
         let filteredMoves = [];
@@ -174,6 +176,32 @@ async function filteringSprites(sprites) {
     };
 };
 
+async function filteringForms(forms) {
+    try {
+        const filteredForms = [];
+        for (let { url } of forms) {
+            const request = await fetch(url);
+            if (!request.ok) throw new 'Request failed for forms url.';
+
+            const {
+                form_name, front_default, front_shiny
+            } = await request.json();
+
+            const newFormsItem = {
+                name: form_name,
+                default: front_default,
+                shiny: front_shiny
+            };
+
+            filteredForms.push(newFormsItem);
+        };
+
+        return { filteredForms };
+    } catch (error) {
+        return { error };
+    };
+};
+
 async function filteringPokemonData(pokemonData) {
     try {
         const {
@@ -188,19 +216,20 @@ async function filteringPokemonData(pokemonData) {
             filteredSprites, error: errorSprites
         } = await filteringSprites(pokemonData.sprites);
 
-        if (errorMoves || errorTypes || errorSprites) throw 'Error filtering Pokemon Data';
+        const {
+            filteredForms, error: errorForms
+        } = await filteringForms(pokemonData.forms);
 
-        const initialUpperCaseName =
-            `${pokemonData.name[0].toUpperCase()}${pokemonData.name.slice(1)}`;
+        if (errorMoves || errorTypes || errorSprites || errorForms) throw new 'Error filtering Pokemon Data';
 
         let newPokemonData = {
             dexnr: pokemonData.id,
-            name: initialUpperCaseName,
+            name: pokemonData.name.toLowerCase(),
             weight: pokemonData.weight,
             height: pokemonData.height,
             location_area_encounters: pokemonData.location_area_encounters,
             abilities: pokemonData.abilities,
-            forms: pokemonData.forms,
+            forms: filteredForms,
             moves: filteredMoves,
             types: filteredTypes,
             sprites: filteredSprites,

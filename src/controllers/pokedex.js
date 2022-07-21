@@ -89,12 +89,12 @@ async function pokedexRegion(req, res) {
 };
 
 async function individualPokemon(req, res) {
-    let { pokemonName } = req.params;
+    const { pokemonName } = req.params;
 
     if (!pokemonName) return res.status(404).json({
         message: "Pokemon's name is required."
     });
-    pokemonName = pokemonName[0].toUpperCase() + pokemonName.slice(1).toLowerCase();
+
     try {
         let findPokemon = await knex('national_pokedex')
             .where({ name: pokemonName })
@@ -126,13 +126,12 @@ async function individualPokemon(req, res) {
 };
 
 async function pokemonVariation(req, res) {
-    let { pokemonName } = req.params;
+    const { pokemonName } = req.params;
 
     if (!pokemonName) return res.status(400).json({
         message: 'pokemonName is required.'
     });
 
-    pokemonName = pokemonName.toLowerCase();
     try {
         const pokemonVariations = await knex('pokemon_variations')
             .select('*')

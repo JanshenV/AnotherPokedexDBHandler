@@ -56,7 +56,7 @@ async function handleNationalPokedex() {
             const {
                 stringfiedData, error: stringfyError
             } = await stringfyData(newPokemonData);
-            if (stringfyError) throw stringfyError;
+            if (stringfyError) throw new stringfyError;
 
             const formatedPokemonData = {
                 name: stringfiedData.name,
@@ -73,7 +73,7 @@ async function handleNationalPokedex() {
                 sprites: stringfiedData.sprites,
             };
 
-            if (formatedPokemonData.dexnr >= 899) {
+            if (formatedPokemonData.dexnr >= 905) {
                 await knex('pokemon_variations')
                     .insert(formatedPokemonData);
             } else {
