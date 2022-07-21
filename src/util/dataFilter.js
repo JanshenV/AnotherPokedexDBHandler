@@ -184,7 +184,9 @@ async function filteringForms(forms) {
             if (!request.ok) throw new 'Request failed for forms url.';
 
             const {
-                form_name, front_default, front_shiny
+                form_name, sprites: {
+                    front_default, front_shiny
+                }
             } = await request.json();
 
             const newFormsItem = {
