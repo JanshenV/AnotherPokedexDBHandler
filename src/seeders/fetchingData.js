@@ -13,7 +13,7 @@ async function fetchRawPokedex() {
 
         if (existingRawPokedex.length) return;
 
-        const rawPokedexRequest = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1126&offset=0');
+        const rawPokedexRequest = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1154&offset=0');
         if (!rawPokedexRequest.ok) throw `Error fetching rawPokedex`;
 
         const { results } = await rawPokedexRequest.json();

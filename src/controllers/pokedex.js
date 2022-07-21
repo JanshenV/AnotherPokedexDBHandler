@@ -52,12 +52,12 @@ async function pokedexRegion(req, res) {
         };
 
         if (region === 'galar') {
-            firstArgument = '898';
+            firstArgument = '904';
             secondArgument = '810';
         };
 
         if (region === '*') {
-            firstArgument = '898';
+            firstArgument = '904';
             secondArgument = '1';
         };
 
