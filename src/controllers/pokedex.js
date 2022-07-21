@@ -1,7 +1,9 @@
-const knex = require('../database/connection');
-
-//Util
-const jsonParser = require('../util/jsonParser');
+//Services
+const {
+    servicePokedexRegion,
+    serviceIndividualPokemon,
+    servicePokemonVariations
+} = require('../services/pokedexServices');
 
 async function pokedexRegion(req, res) {
     let { region } = req.params;
@@ -12,80 +14,16 @@ async function pokedexRegion(req, res) {
 
     region = region.toLowerCase();
 
-    try {
-        let firstArgument = 0;
-        let secondArgument = 0;
+    const {
+        RegionalPokedex, serviceError
+    } = await servicePokedexRegion(region);
 
-        if (region === 'kanto') {
-            firstArgument = '151';
-            secondArgument = '1';
-        };
+    if (serviceError) return res.status(serviceError.status).json({
+        message: serviceError.message
+    });
 
-        if (region === 'johto') {
-            firstArgument = '251';
-            secondArgument = '152';
-        };
-
-        if (region === 'hoenn') {
-            firstArgument = '386';
-            secondArgument = '252';
-        };
-
-        if (region === 'sinnoh') {
-            firstArgument = '493';
-            secondArgument = '387';
-        };
-
-        if (region === 'unova') {
-            firstArgument = '649';
-            secondArgument = '494';
-        };
-
-        if (region === 'kalos') {
-            firstArgument = '721';
-            secondArgument = '650';
-        };
-
-        if (region === 'alola') {
-            firstArgument = '809';
-            secondArgument = '722';
-        };
-
-        if (region === 'galar') {
-            firstArgument = '904';
-            secondArgument = '810';
-        };
-
-        if (region === '*') {
-            firstArgument = '904';
-            secondArgument = '1';
-        };
-
-        const jsonPokedex = [];
-        const pokedex = await knex('national_pokedex')
-            .select('*')
-            .where('dexnr', '<=', firstArgument)
-            .andWhere('dexnr', '>=', secondArgument)
-            .orderBy('dexnr');
-
-        if (!pokedex.length) return res.status(404).json({
-            message: 'Pokedex does not exist.'
-        });
-
-        for (let pokemon of pokedex) {
-            const {
-                jsonPokemonData, error
-            } = await jsonParser(pokemon);
-
-            if (error) throw error;
-
-            jsonPokedex.push(jsonPokemonData);
-        };
-        res.set('Cache-Control', 'public, max-age=604800');
-        return res.status(200).json(jsonPokedex);
-    } catch (error) {
-        return res.status(500).json(error);
-    };
+    res.set('Cache-Control', 'public, max-age=604800');
+    return res.status(200).json(RegionalPokedex);
 };
 
 async function individualPokemon(req, res) {
@@ -95,34 +33,16 @@ async function individualPokemon(req, res) {
         message: "Pokemon's name is required."
     });
 
-    try {
-        let findPokemon = await knex('national_pokedex')
-            .where({ name: pokemonName })
-            .first();
+    const {
+        PokemonData, serviceError
+    } = await serviceIndividualPokemon(pokemonName);
 
-        if (!findPokemon) {
-            findPokemon = await knex('national_pokedex')
-                .where({ dexnr: pokemonName })
-                .first();
-            if (!findPokemon) return res.status(404).json({
-                message: 'Pokemon does not exist',
-            });
-        };
+    if (serviceError) return res.status(serviceError.status).json({
+        message: serviceError.message
+    });
 
-        const {
-            jsonPokemonData, error
-        } = await jsonParser(findPokemon);
-
-        if (error) throw error;
-
-        let jsonPokemon = [];
-        jsonPokemon.push(jsonPokemonData);
-
-        res.set('Cache-Control', 'public, max-age=604800');
-        return res.status(200).json(jsonPokemon);
-    } catch ({ message }) {
-        return res.status(500).json({ message });
-    };
+    res.set('Cache-Control', 'public, max-age=604800');
+    return res.status(200).json(PokemonData);
 };
 
 async function pokemonVariation(req, res) {
@@ -132,31 +52,16 @@ async function pokemonVariation(req, res) {
         message: 'pokemonName is required.'
     });
 
-    try {
-        const pokemonVariations = await knex('pokemon_variations')
-            .select('*')
-            .where('name', 'like', `${pokemonName}-%`);
+    const {
+        PokemonVariations, serviceError
+    } = await servicePokemonVariations(pokemonName);
 
-        if (!pokemonVariations.length) return res.status(404).json({
-            message: 'Pokemon does not exist.'
-        });
+    if (serviceError) return res.status(serviceError.status).json({
+        message: serviceError.message
+    });
 
-        const jsonPokemonVariations = [];
-
-        for (let pokemon of pokemonVariations) {
-            const {
-                jsonPokemonData, error
-            } = await jsonParser(pokemon);
-
-            if (error) throw error;
-
-            jsonPokemonVariations.push(jsonPokemonData);
-        };
-        res.set('Cache-Control', 'public, max-age=604800');
-        return res.status(200).json(jsonPokemonVariations);
-    } catch ({ message }) {
-        return res.status(500).json({ message });
-    };
+    res.set('Cache-Control', 'public, max-age=604800');
+    return res.status(200).json(PokemonVariations);
 };
 
 module.exports = {
