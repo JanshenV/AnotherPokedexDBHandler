@@ -219,7 +219,7 @@ async function filteringEvolutionChain(evolutionChain) {
         const filteredChain = [];
         let details;
 
-        if (chain.evolves_to.length) {
+        if (chain?.evolves_to?.length) {
             do {
                 if (chain.evolution_details.length) {
                     details = Object.entries(chain.evolution_details[0])
@@ -258,7 +258,7 @@ async function filteringEvolutionChain(evolutionChain) {
         };
 
         return {
-            filteredChain: filteredChain.length > 1 ? filteredChain : 'no chain'
+            filteredChain: filteredChain.length > 1 ? filteredChain : []
         };
     } catch (error) {
         return { error };
@@ -313,17 +313,20 @@ function filteringPokedexNumbers(pokedexNumbers) {
 
 function filteringVarietes(varieties) {
     try {
-        let filteredVarietes = varieties.filter(variety => {
-            if (variety.pokemon.name !== varieties[0].pokemon.name) {
-                return variety;
-            };
-        });
+        let filteredVarietes = [];
+        if (varieties?.length) {
+            filteredVarietes = varieties.filter(variety => {
+                if (variety.pokemon.name !== varieties[0].pokemon.name) {
+                    return variety;
+                };
+            });
 
-        filteredVarietes = filteredVarietes.map(variety => {
-            return variety = {
-                varietyName: variety.pokemon.name
-            };
-        });
+            filteredVarietes = filteredVarietes.map(variety => {
+                return variety = {
+                    varietyName: variety.pokemon.name
+                };
+            });
+        };
 
         return { filteredVarietes };
     } catch (error) {
