@@ -258,7 +258,7 @@ async function filteringEvolutionChain(evolutionChain) {
         };
 
         return {
-            filteredChain: filteredChain.length > 1 ? filteredChain : []
+            filteredChain: filteredChain?.length > 1 ? filteredChain : []
         };
     } catch (error) {
         return { error };
