@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-async function filteringMoves(moves) {
+function filteringMoves(moves) {
     try {
         let filteredMoves = [];
         for (let { move } of moves) {
@@ -13,7 +13,7 @@ async function filteringMoves(moves) {
     };
 };
 
-async function filteringTypes(types) {
+function filteringTypes(types) {
     try {
         let filteredTypes = [];
         for (let { type } of types) {
@@ -26,7 +26,7 @@ async function filteringTypes(types) {
     };
 };
 
-async function filteringSprites(sprites) {
+function filteringSprites(sprites) {
     try {
         const { other, versions } = sprites;
 
@@ -198,7 +198,201 @@ async function filteringForms(forms) {
             filteredForms.push(newFormsItem);
         };
 
-        return { filteredForms };
+        return {
+            filteredForms: filteredForms.length > 1 ? filteredForms : []
+        };
+    } catch (error) {
+        return { error };
+    };
+};
+
+async function filteringEvolutionChain(evolutionChain) {
+    try {
+        const { url } = evolutionChain;
+        const request = await fetch(url);
+
+        if (!request.ok) throw {
+            message: 'Evolution request failed',
+            status: 500
+        };
+        let { chain } = await request.json();
+        const filteredChain = [];
+        let details;
+
+        if (chain.evolves_to.length) {
+            do {
+                if (chain.evolution_details.length) {
+                    details = Object.entries(chain.evolution_details[0])
+                        .filter(([, value]) => value)
+                        .reduce((prev, [key, value]) => ({
+                            ...prev,
+                            [key]: value
+                        }), {});
+                };
+
+                filteredChain.push({
+                    species: chain.species.name ? chain.species.name : '',
+                    details
+                });
+
+                let numberOfEvolutions = chain['evolves_to'].length;
+                if (numberOfEvolutions > 1) {
+                    for (let i = 1; i < numberOfEvolutions; i++) {
+                        details = Object.entries(chain.evolves_to[i].evolution_details[0])
+                            .filter(([, value]) => value)
+                            .reduce((prev, [key, value]) => ({
+                                ...prev,
+                                [key]: value
+                            }), {});
+
+
+                        filteredChain.push({
+                            species: chain.evolves_to[i].species.name,
+                            details
+                        });
+                    };
+                };
+
+                chain = chain['evolves_to'][0];
+            } while (chain && chain.hasOwnProperty('evolves_to'));
+        };
+
+        return {
+            filteredChain: filteredChain.length > 1 ? filteredChain : 'no chain'
+        };
+    } catch (error) {
+        return { error };
+    };
+};
+
+function filteringDescriptions(descriptions) {
+    try {
+        const formattingDescriptions = descriptions.map((item) => {
+            return item = {
+                text: item.flavor_text.replace(/(\n|\f)/gm, " "),
+                language: item.language.name,
+                version: item.version.name
+            }
+        });
+
+        const englishDescriptions = formattingDescriptions.filter(({ language }) => language === 'en');
+
+        return {
+            filteredDescriptions: englishDescriptions
+        };
+    } catch (error) {
+        return { error };
+    };
+};
+
+function filteringSpecies(species) {
+    try {
+        let filteredSpecie = species.find(({ language: { name } }) => name === 'en');
+        filteredSpecie = {
+            specie: filteredSpecie.genus,
+        };
+        return { filteredSpecie };
+    } catch (error) {
+        return { error };
+    };
+};
+
+function filteringPokedexNumbers(pokedexNumbers) {
+    try {
+        let filteredPokedexNumbers = pokedexNumbers.map((pokedex) => {
+            return pokedex = {
+                entryNumber: pokedex.entry_number,
+                pokedexName: pokedex.pokedex.name
+            };
+        });
+        return { filteredPokedexNumbers };
+    } catch (error) {
+        return { error };
+    };
+};
+
+function filteringVarietes(varieties) {
+    try {
+        let filteredVarietes = varieties.filter(variety => {
+            if (variety.pokemon.name !== varieties[0].pokemon.name) {
+                return variety;
+            };
+        });
+
+        filteredVarietes = filteredVarietes.map(variety => {
+            return variety = {
+                varietyName: variety.pokemon.name
+            };
+        });
+
+        return { filteredVarietes };
+    } catch (error) {
+        return { error };
+    };
+};
+
+async function filteringSpeciesUrl(species) {
+    try {
+        const { url } = species;
+        const request = await fetch(url);
+        if (!request.ok) throw {
+            message: 'Species request failed',
+            status: 500
+        };
+
+        const {
+            evolution_chain: evolutionChain,
+            flavor_text_entries: pokemonDescriptions,
+            genera: pokemonSpecies,
+            habitat: { name },
+            is_legendary: legendary,
+            is_mythical: mythical,
+            pokedex_numbers: pokedexNumbers,
+            varieties
+        } = await request.json();
+
+        const {
+            filteredChain, error: chainError
+        } = await filteringEvolutionChain(evolutionChain);
+
+        const {
+            filteredDescriptions, error: descriptionsError
+        } = filteringDescriptions(pokemonDescriptions);
+
+        const {
+            filteredSpecie, error: speciesError
+        } = filteringSpecies(pokemonSpecies);
+
+        const {
+            filteredPokedexNumbers, error: pokedexNumbersError
+        } = filteringPokedexNumbers(pokedexNumbers);
+
+        const {
+            filteredVarieties, error: varietiesError
+        } = filteringVarietes(varieties);
+
+        if (chainError ||
+            descriptionsError ||
+            speciesError ||
+            pokedexNumbersError ||
+            varietiesError
+        ) throw {
+            message: 'Error on filteringSpeciesUrl',
+            status: 500
+        };
+
+        const filteredSpeciesUrl = {
+            filteredChain,
+            filteredDescriptions,
+            filteredSpecie,
+            filteredPokedexNumbers,
+            filteredVarieties,
+            legendary,
+            mythical,
+            habitat: name
+        };
+
+        return { filteredSpeciesUrl };
     } catch (error) {
         return { error };
     };
@@ -208,36 +402,66 @@ async function filteringPokemonData(pokemonData) {
     try {
         const {
             filteredMoves, error: errorMoves
-        } = await filteringMoves(pokemonData.moves);
+        } = filteringMoves(pokemonData.moves);
 
         const {
             filteredTypes, error: errorTypes
-        } = await filteringTypes(pokemonData.types);
+        } = filteringTypes(pokemonData.types);
 
         const {
             filteredSprites, error: errorSprites
-        } = await filteringSprites(pokemonData.sprites);
+        } = filteringSprites(pokemonData.sprites);
 
         const {
             filteredForms, error: errorForms
         } = await filteringForms(pokemonData.forms);
 
-        if (errorMoves || errorTypes || errorSprites || errorForms) throw new 'Error filtering Pokemon Data';
+        const {
+            filteredSpeciesUrl: {
+                filteredChain,
+                filteredDescriptions,
+                filteredSpecie,
+                filteredPokedexNumbers,
+                filteredVarieties,
+                legendary,
+                mythical,
+                habitat
+            }, error: errorSpeciesUrl
+        } = await filteringSpeciesUrl(pokemonData.species);
+
+        if (errorMoves ||
+            errorTypes ||
+            errorSprites ||
+            errorForms ||
+            errorSpeciesUrl
+        ) throw {
+            message: 'Error filtering Pokemon Data',
+            status: 500
+        };
 
         let newPokemonData = {
-            dexnr: pokemonData.id,
             name: pokemonData.name.toLowerCase(),
+            nationaldex: pokemonData.id,
+            regionaldex: filteredPokedexNumbers[1].entryNumber,
+            all_dex_numbers: filteredPokedexNumbers,
+            types: filteredTypes,
+            descriptions: filteredDescriptions,
+            habitat,
+            species: filteredSpecie,
             weight: pokemonData.weight,
             height: pokemonData.height,
             location_area_encounters: pokemonData.location_area_encounters,
             abilities: pokemonData.abilities,
-            forms: filteredForms,
             moves: filteredMoves,
-            types: filteredTypes,
+            evolutions: filteredChain,
+            forms: filteredForms,
+            varieties: filteredVarieties,
             sprites: filteredSprites,
-            species: pokemonData.species,
+            legendary,
+            mythical,
             stats: pokemonData.stats
         };
+
         return { newPokemonData };
     } catch (error) {
         return { error };

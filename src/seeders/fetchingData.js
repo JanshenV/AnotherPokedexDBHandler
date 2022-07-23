@@ -34,7 +34,6 @@ async function handleNationalPokedex() {
         const rawPokedex = await knex('raw_pokedex')
             .select('*');
         if (!rawPokedex.length) throw 'Raw pokedex is empty';
-
         const nationalPokedex = await knex('national_pokedex')
             .select('*');
 
@@ -56,24 +55,32 @@ async function handleNationalPokedex() {
             const {
                 stringfiedData, error: stringfyError
             } = await stringfyData(newPokemonData);
-            if (stringfyError) throw new stringfyError;
+            if (stringfyError) throw stringfyError;
 
             const formatedPokemonData = {
                 name: stringfiedData.name,
-                dexnr: stringfiedData.dexnr,
+                nationaldex: stringfiedData.nationaldex,
+                regionaldex: stringfiedData.regionaldex,
+                all_dex_numbers: stringfiedData.all_dex_numbers,
+                types: stringfiedData.types,
+                descriptions: stringfiedData.descriptions,
+                habitat: stringfiedData.habitat,
+                species: stringfiedData.species,
                 weight: stringfiedData.weight,
                 height: stringfiedData.height,
                 location_area_encounters: stringfiedData.location_area_encounters,
                 abilities: stringfiedData.abilities,
-                forms: stringfiedData.forms,
-                species: stringfiedData.species,
                 moves: stringfiedData.moves,
-                types: stringfiedData.types,
-                stats: stringfiedData.stats,
+                evolutions: stringfiedData.evolutions,
+                forms: stringfiedData.forms,
+                varieties: stringfiedData.varieties,
                 sprites: stringfiedData.sprites,
+                legendary: stringfiedData.legendary,
+                mythical: stringfiedData.mythical,
+                stats: stringfiedData.stats
             };
 
-            if (formatedPokemonData.dexnr >= 905) {
+            if (formatedPokemonData.nationaldex >= 905) {
                 await knex('pokemon_variations')
                     .insert(formatedPokemonData);
             } else {
@@ -82,6 +89,7 @@ async function handleNationalPokedex() {
             };
         };
     } catch (error) {
+        console.log(error)
         return error;
     };
 };

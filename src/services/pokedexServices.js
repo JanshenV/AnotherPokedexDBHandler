@@ -53,22 +53,22 @@ async function servicePokedexRegion(region) {
             secondArgument = '1';
         };
 
-        const jsonPokedex = [];
         const pokedex = await knex('national_pokedex')
             .select('*')
-            .where('dexnr', '<=', firstArgument)
-            .andWhere('dexnr', '>=', secondArgument)
-            .orderBy('dexnr');
+            .where('nationaldex', '<=', firstArgument)
+            .andWhere('nationaldex', '>=', secondArgument)
+            .orderBy('nationaldex');
 
         if (!pokedex.length) throw {
             message: 'Pokedex does not exist.',
             status: 404
         };
 
+        const jsonPokedex = [];
         for (let pokemon of pokedex) {
             const {
                 jsonPokemonData, error
-            } = await jsonParser(pokemon);
+            } = jsonParser(pokemon);
 
             if (error) throw {
                 error,
@@ -77,7 +77,6 @@ async function servicePokedexRegion(region) {
 
             jsonPokedex.push(jsonPokemonData);
         };
-
         return {
             RegionalPokedex: jsonPokedex
         };
@@ -100,7 +99,7 @@ async function serviceIndividualPokemon(name) {
 
         if (Number(name)) {
             findPokemon = await knex('national_pokedex')
-                .where({ dexnr: Number(name) })
+                .where({ nationaldex: Number(name) })
                 .first();
         };
 
@@ -120,7 +119,6 @@ async function serviceIndividualPokemon(name) {
 
         let jsonPokemon = [];
         jsonPokemon.push(jsonPokemonData);
-
         return {
             PokemonData: jsonPokemonData
         };

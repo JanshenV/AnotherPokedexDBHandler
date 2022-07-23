@@ -9,8 +9,8 @@ async function seedersFirst() {
     try {
         await runningMigrations();
         await fetchingData();
-    } catch ({ message }) {
-        return console.log({ message });
+    } catch (error) {
+        return console.log(error);
     };
 };
 
