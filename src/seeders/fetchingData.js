@@ -5,7 +5,6 @@ const fetch = require('node-fetch');
 const filteringPokemonData = require('../util/dataFilter');
 const stringfyData = require('../util/stringfyData');
 
-
 async function fetchRawPokedex() {
     try {
         const existingRawPokedex = await knex('raw_pokedex')
@@ -13,7 +12,7 @@ async function fetchRawPokedex() {
 
         if (existingRawPokedex.length) return;
 
-        const rawPokedexRequest = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1000000&offset=0');
+        const rawPokedexRequest = await fetch('https://pokeapi.co/api/v2/pokemon?limit=10000&offset=0');
         if (!rawPokedexRequest.ok) throw `Error fetching rawPokedex`;
 
         const { results } = await rawPokedexRequest.json();
@@ -25,6 +24,7 @@ async function fetchRawPokedex() {
             });
         };
     } catch (error) {
+        console.log(error)
         return error;
     };
 };
@@ -43,7 +43,10 @@ async function handleNationalPokedex() {
             const { pokemonurl: url } = rawPokemon;
 
             const pokemonUrlRequest = await fetch(url);
-            if (!pokemonUrlRequest.ok) throw "Pokemon url request error";
+            if (!pokemonUrlRequest.ok) throw {
+                message: "Pokemon url request error",
+                status: 500
+            };
 
             const pokemonUrlResponse = await pokemonUrlRequest.json();
 
@@ -54,13 +57,12 @@ async function handleNationalPokedex() {
 
             const {
                 stringfiedData, error: stringfyError
-            } = await stringfyData(newPokemonData);
+            } = stringfyData(newPokemonData);
             if (stringfyError) throw stringfyError;
 
             const formatedPokemonData = {
                 name: stringfiedData.name,
                 nationaldex: stringfiedData.nationaldex,
-                regionaldex: stringfiedData.regionaldex,
                 all_dex_numbers: stringfiedData.all_dex_numbers,
                 types: stringfiedData.types,
                 descriptions: stringfiedData.descriptions,
@@ -80,7 +82,7 @@ async function handleNationalPokedex() {
                 stats: stringfiedData.stats
             };
 
-            if (formatedPokemonData.nationaldex >= 905) {
+            if (formatedPokemonData.nationaldex >= 906) {
                 await knex('pokemon_variations')
                     .insert(formatedPokemonData);
             } else {
@@ -89,8 +91,8 @@ async function handleNationalPokedex() {
             };
         };
     } catch (error) {
-        console.log(error)
-        return error;
+        console.log(error);
+        return { error };
     };
 };
 

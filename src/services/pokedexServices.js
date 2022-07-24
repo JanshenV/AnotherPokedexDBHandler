@@ -44,12 +44,12 @@ async function servicePokedexRegion(region) {
         };
 
         if (region === 'galar') {
-            firstArgument = '904';
+            firstArgument = '905';
             secondArgument = '810';
         };
 
         if (region === '*') {
-            firstArgument = '904';
+            firstArgument = '905';
             secondArgument = '1';
         };
 

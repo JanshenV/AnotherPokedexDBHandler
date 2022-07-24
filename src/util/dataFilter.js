@@ -170,7 +170,6 @@ function filteringSprites(sprites) {
         filteredSprites.push(femaleSprites);
 
         return { filteredSprites };
-
     } catch (error) {
         return { error };
     };
@@ -181,7 +180,10 @@ async function filteringForms(forms) {
         const filteredForms = [];
         for (let { url } of forms) {
             const request = await fetch(url);
-            if (!request.ok) throw new 'Request failed for forms url.';
+            if (!request.ok) throw {
+                message: 'Request failed for forms url.',
+                status: 500
+            };
 
             const {
                 form_name, sprites: {
@@ -221,8 +223,8 @@ async function filteringEvolutionChain(evolutionChain) {
 
         if (chain?.evolves_to?.length) {
             do {
-                if (chain.evolution_details.length) {
-                    details = Object.entries(chain.evolution_details[0])
+                if (chain?.evolution_details?.length) {
+                    details = Object.entries(chain?.evolution_details[0])
                         .filter(([, value]) => value)
                         .reduce((prev, [key, value]) => ({
                             ...prev,
@@ -231,14 +233,14 @@ async function filteringEvolutionChain(evolutionChain) {
                 };
 
                 filteredChain.push({
-                    species: chain.species.name ? chain.species.name : '',
+                    species: chain?.species?.name ? chain?.species?.name : '',
                     details
                 });
 
-                let numberOfEvolutions = chain['evolves_to'].length;
+                let numberOfEvolutions = chain['evolves_to']?.length;
                 if (numberOfEvolutions > 1) {
                     for (let i = 1; i < numberOfEvolutions; i++) {
-                        details = Object.entries(chain.evolves_to[i].evolution_details[0])
+                        details = Object.entries(chain?.evolves_to[i]?.evolution_details[0])
                             .filter(([, value]) => value)
                             .reduce((prev, [key, value]) => ({
                                 ...prev,
@@ -247,18 +249,19 @@ async function filteringEvolutionChain(evolutionChain) {
 
 
                         filteredChain.push({
-                            species: chain.evolves_to[i].species.name,
+                            species: chain?.evolves_to[i]?.species.name,
                             details
                         });
                     };
                 };
 
                 chain = chain['evolves_to'][0];
-            } while (chain && chain.hasOwnProperty('evolves_to'));
+            } while (chain && chain?.hasOwnProperty('evolves_to'));
         };
 
         return {
-            filteredChain: filteredChain?.length > 1 ? filteredChain : []
+            filteredChain: (filteredChain?.length && filteredChain?.length > 1) ?
+                filteredChain : []
         };
     } catch (error) {
         return { error };
@@ -267,18 +270,19 @@ async function filteringEvolutionChain(evolutionChain) {
 
 function filteringDescriptions(descriptions) {
     try {
-        const formattingDescriptions = descriptions.map((item) => {
+        const formattingDescriptions = descriptions?.map((item) => {
             return item = {
-                text: item.flavor_text.replace(/(\n|\f)/gm, " "),
-                language: item.language.name,
-                version: item.version.name
+                text: item?.flavor_text?.replace(/(\n|\f)/gm, " "),
+                language: item?.language?.name,
+                version: item?.version.name
             }
         });
 
-        const englishDescriptions = formattingDescriptions.filter(({ language }) => language === 'en');
+        const englishDescriptions = formattingDescriptions?.filter(({ language }) => language === 'en');
 
         return {
-            filteredDescriptions: englishDescriptions
+            filteredDescriptions: englishDescriptions?.length ?
+                englishDescriptions : []
         };
     } catch (error) {
         return { error };
@@ -291,7 +295,10 @@ function filteringSpecies(species) {
         filteredSpecie = {
             specie: filteredSpecie.genus,
         };
-        return { filteredSpecie };
+
+        return {
+            filteredSpecie
+        };
     } catch (error) {
         return { error };
     };
@@ -299,36 +306,35 @@ function filteringSpecies(species) {
 
 function filteringPokedexNumbers(pokedexNumbers) {
     try {
-        let filteredPokedexNumbers = pokedexNumbers.map((pokedex) => {
+        let filteredPokedexNumbers = pokedexNumbers?.map((pokedex) => {
             return pokedex = {
-                entryNumber: pokedex.entry_number,
-                pokedexName: pokedex.pokedex.name
+                entryNumber: pokedex?.entry_number,
+                pokedexName: pokedex?.pokedex.name
             };
         });
-        return { filteredPokedexNumbers };
+        return {
+            filteredPokedexNumbers: filteredPokedexNumbers?.length ? filteredPokedexNumbers : []
+        };
     } catch (error) {
         return { error };
     };
 };
 
-function filteringVarietes(varieties) {
+function filteringVarieties(varieties) {
     try {
-        let filteredVarietes = [];
+        let filteredVarieties = [];
         if (varieties?.length) {
-            filteredVarietes = varieties.filter(variety => {
-                if (variety.pokemon.name !== varieties[0].pokemon.name) {
-                    return variety;
+            filteredVarieties = varieties?.map(({ pokemon }) => {
+                return {
+                    ...pokemon
                 };
             });
 
-            filteredVarietes = filteredVarietes.map(variety => {
-                return variety = {
-                    varietyName: variety.pokemon.name
-                };
-            });
         };
 
-        return { filteredVarietes };
+        return {
+            filteredVarieties: filteredVarieties?.length ? filteredVarieties : []
+        };
     } catch (error) {
         return { error };
     };
@@ -342,61 +348,75 @@ async function filteringSpeciesUrl(species) {
             message: 'Species request failed',
             status: 500
         };
+        const response = await request.json();
 
-        const {
-            evolution_chain: evolutionChain,
-            flavor_text_entries: pokemonDescriptions,
-            genera: pokemonSpecies,
-            habitat: { name },
-            is_legendary: legendary,
-            is_mythical: mythical,
-            pokedex_numbers: pokedexNumbers,
-            varieties
-        } = await request.json();
+        let evolutionsChain = [];
+        if (response?.evolution_chain && response?.evolution_chain?.length) {
+            const {
+                filteredChain, error: chainError
+            } = await filteringEvolutionChain(response?.evolution_chain);
+            if (chainError) throw { chainError };
+            evolutionsChain = [...filteredChain];
+        };
 
-        const {
-            filteredChain, error: chainError
-        } = await filteringEvolutionChain(evolutionChain);
+        let pokemonDescriptions = [];
+        if (response?.flavor_text_entries && response.flavor_text_entries?.length) {
+            const {
+                filteredDescriptions, error: descriptionsError
+            } = filteringDescriptions(response?.flavor_text_entries);
+            if (descriptionsError) throw { descriptionsError };
+            pokemonDescriptions = [...filteredDescriptions];
+        };
 
-        const {
-            filteredDescriptions, error: descriptionsError
-        } = filteringDescriptions(pokemonDescriptions);
+        let pokemonSpecie = {
+            specie: 'unkown'
+        };
+        if (response?.genera && response?.genera?.length) {
+            const {
+                filteredSpecie, error: speciesError
+            } = filteringSpecies(response?.genera);
+            if (speciesError) throw { speciesError };
+            pokemonSpecie = {
+                ...filteredSpecie
+            };
+        };
 
-        const {
-            filteredSpecie, error: speciesError
-        } = filteringSpecies(pokemonSpecies);
+        let pokedexNumbers = [];
+        if (response?.pokedex_numbers && response?.pokedex_numbers?.length) {
+            const {
+                filteredPokedexNumbers, error: pokedexNumbersError
+            } = filteringPokedexNumbers(response?.pokedex_numbers);
+            if (pokedexNumbersError) throw { pokedexNumbersError };
 
-        const {
-            filteredPokedexNumbers, error: pokedexNumbersError
-        } = filteringPokedexNumbers(pokedexNumbers);
+            pokedexNumbers = [...filteredPokedexNumbers];
+        };
 
-        const {
-            filteredVarieties, error: varietiesError
-        } = filteringVarietes(varieties);
+        let pokemonVarieties = [];
+        if (response?.varieties && response?.varieties?.length) {
+            const {
+                filteredVarieties, error: varietiesError
+            } = filteringVarieties(response?.varieties);
+            if (varietiesError) throw { varietiesError };
 
-        if (chainError ||
-            descriptionsError ||
-            speciesError ||
-            pokedexNumbersError ||
-            varietiesError
-        ) throw {
-            message: 'Error on filteringSpeciesUrl',
-            status: 500
+            pokemonVarieties = [...filteredVarieties];
         };
 
         const filteredSpeciesUrl = {
-            filteredChain,
-            filteredDescriptions,
-            filteredSpecie,
-            filteredPokedexNumbers,
-            filteredVarieties,
-            legendary,
-            mythical,
-            habitat: name
+            evolutionsChain,
+            pokemonDescriptions,
+            pokemonSpecie,
+            pokedexNumbers,
+            pokemonVarieties,
+            legendary: response?.is_legendary ?
+                response.is_legendary : false,
+            mythical: response?.is_mythical ?
+                response.is_mythical : false,
+            habitat: response.habitat ?
+                response?.habitat?.name : 'No habitat'
         };
-
         return { filteredSpeciesUrl };
     } catch (error) {
+        console.log({ error })
         return { error };
     };
 };
@@ -407,58 +427,59 @@ async function filteringPokemonData(pokemonData) {
             filteredMoves, error: errorMoves
         } = filteringMoves(pokemonData.moves);
 
+        if (errorMoves) throw errorMoves;
+
         const {
             filteredTypes, error: errorTypes
         } = filteringTypes(pokemonData.types);
+
+        if (errorTypes) throw errorTypes;
 
         const {
             filteredSprites, error: errorSprites
         } = filteringSprites(pokemonData.sprites);
 
+        if (errorSprites) throw errorSprites;
+
         const {
             filteredForms, error: errorForms
         } = await filteringForms(pokemonData.forms);
 
+        if (errorForms) throw errorForms;
+
         const {
             filteredSpeciesUrl: {
-                filteredChain,
-                filteredDescriptions,
-                filteredSpecie,
-                filteredPokedexNumbers,
-                filteredVarieties,
+                evolutionsChain,
+                pokemonDescriptions,
+                pokemonSpecie,
+                pokedexNumbers,
+                pokemonVarieties,
                 legendary,
                 mythical,
                 habitat
             }, error: errorSpeciesUrl
         } = await filteringSpeciesUrl(pokemonData.species);
 
-        if (errorMoves ||
-            errorTypes ||
-            errorSprites ||
-            errorForms ||
-            errorSpeciesUrl
-        ) throw {
-            message: 'Error filtering Pokemon Data',
-            status: 500
-        };
+        if (errorSpeciesUrl) throw errorSpeciesUrl;
+
 
         let newPokemonData = {
             name: pokemonData.name.toLowerCase(),
             nationaldex: pokemonData.id,
-            regionaldex: filteredPokedexNumbers[1].entryNumber,
-            all_dex_numbers: filteredPokedexNumbers,
+            all_dex_numbers: pokedexNumbers?.length ?
+                pokedexNumbers : [],
             types: filteredTypes,
-            descriptions: filteredDescriptions,
+            descriptions: pokemonDescriptions,
             habitat,
-            species: filteredSpecie,
+            species: pokemonSpecie,
             weight: pokemonData.weight,
             height: pokemonData.height,
             location_area_encounters: pokemonData.location_area_encounters,
             abilities: pokemonData.abilities,
             moves: filteredMoves,
-            evolutions: filteredChain,
+            evolutions: evolutionsChain,
             forms: filteredForms,
-            varieties: filteredVarieties,
+            varieties: pokemonVarieties,
             sprites: filteredSprites,
             legendary,
             mythical,
@@ -467,6 +488,7 @@ async function filteringPokemonData(pokemonData) {
 
         return { newPokemonData };
     } catch (error) {
+        console.log(error);
         return { error };
     };
 };
