@@ -40,7 +40,6 @@ async function individualPokemon(req, res) {
     if (serviceError) return res.status(serviceError.status).json({
         message: serviceError.message
     });
-
     res.set('Cache-Control', 'public, max-age=604800');
     return res.status(200).json(PokemonData);
 };

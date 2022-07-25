@@ -2,61 +2,15 @@ const knex = require('../database/connection');
 
 //Util
 const jsonParser = require('../util/jsonParser');
+const argumentsHandler = require('../util/argumentsHandler.js');
+
 
 async function servicePokedexRegion(region) {
     try {
-        let firstArgument = 0;
-        let secondArgument = 0;
-
-        if (region === 'kanto') {
-            firstArgument = '151';
-            secondArgument = '1';
-        };
-
-        if (region === 'johto') {
-            firstArgument = '251';
-            secondArgument = '152';
-        };
-
-        if (region === 'hoenn') {
-            firstArgument = '386';
-            secondArgument = '252';
-        };
-
-        if (region === 'sinnoh') {
-            firstArgument = '493';
-            secondArgument = '387';
-        };
-
-        if (region === 'unova') {
-            firstArgument = '649';
-            secondArgument = '494';
-        };
-
-        if (region === 'kalos') {
-            firstArgument = '721';
-            secondArgument = '650';
-        };
-
-        if (region === 'alola') {
-            firstArgument = '809';
-            secondArgument = '722';
-        };
-
-        if (region === 'galar') {
-            firstArgument = '905';
-            secondArgument = '810';
-        };
-
-        if (region === '*') {
-            firstArgument = '905';
-            secondArgument = '1';
-        };
-
         const pokedex = await knex('national_pokedex')
             .select('*')
-            .where('nationaldex', '<=', firstArgument)
-            .andWhere('nationaldex', '>=', secondArgument)
+            .where('nationaldex', '<=', argumentsHandler[region]().first)
+            .andWhere('nationaldex', '>=', argumentsHandler[region]().second)
             .orderBy('nationaldex');
 
         if (!pokedex.length) throw {
@@ -110,7 +64,7 @@ async function serviceIndividualPokemon(name) {
 
         const {
             jsonPokemonData, error
-        } = await jsonParser(findPokemon);
+        } = jsonParser(findPokemon);
 
         if (error) throw {
             message: error,
@@ -120,9 +74,10 @@ async function serviceIndividualPokemon(name) {
         let jsonPokemon = [];
         jsonPokemon.push(jsonPokemonData);
         return {
-            PokemonData: jsonPokemonData
+            PokemonData: jsonPokemon
         };
     } catch (error) {
+        console.log(error);
         return {
             serviceError: error
         };
