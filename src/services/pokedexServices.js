@@ -4,8 +4,8 @@ const knex = require('../database/connection');
 const jsonParser = require('../util/jsonParser');
 const argumentsHandler = require('../util/argumentsHandler.js');
 
-
 async function servicePokedexRegion(region) {
+    region = region.toLowerCase();
     try {
         const pokedex = await knex('national_pokedex')
             .select('*')

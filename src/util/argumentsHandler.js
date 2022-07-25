@@ -46,14 +46,14 @@ const arguments = {
     },
     'galar': () => {
         return {
-            first: '723',
-            second: '905'
+            first: '905',
+            second: '810'
         }
     },
     '*': () => {
         return {
-            first: '1',
-            second: '905'
+            first: '905',
+            second: '1'
         }
     },
 
