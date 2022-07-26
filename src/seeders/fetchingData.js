@@ -37,7 +37,7 @@ async function handleNationalPokedex() {
         const nationalPokedex = await knex('national_pokedex')
             .select('*');
 
-        if (nationalPokedex.length) return;
+        if (nationalPokedex?.length === 905) return;
 
         for (let rawPokemon of rawPokedex) {
             const { pokemonurl: url } = rawPokemon;
@@ -46,6 +46,18 @@ async function handleNationalPokedex() {
             if (!pokemonUrlRequest.ok) throw {
                 message: "Pokemon url request error",
                 status: 500
+            };
+
+            const pokemonNationalDex = await knex('national_pokedex')
+                .where({ name: rawPokemon.name })
+                .first();
+
+            const pokemonVariation = await knex('pokemon_variations')
+                .where({ name: rawPokemon.name })
+                .first();
+
+            if (pokemonNationalDex || pokemonVariation) {
+                continue;
             };
 
             const pokemonUrlResponse = await pokemonUrlRequest.json();

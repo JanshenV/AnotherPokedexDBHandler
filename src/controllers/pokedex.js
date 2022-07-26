@@ -22,7 +22,7 @@ async function pokedexRegion(req, res) {
         message: serviceError.message
     });
 
-    // res.set('Cache-Control', 'public, max-age=604800');
+    res.set('Cache-Control', 'public, max-age=604800');
     return res.status(200).json(RegionalPokedex);
 };
 

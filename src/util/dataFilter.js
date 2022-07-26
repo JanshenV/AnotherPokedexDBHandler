@@ -351,7 +351,7 @@ async function filteringSpeciesUrl(species) {
         const response = await request.json();
 
         let evolutionsChain = [];
-        if (response?.evolution_chain && response?.evolution_chain?.length) {
+        if (response?.evolution_chain) {
             const {
                 filteredChain, error: chainError
             } = await filteringEvolutionChain(response?.evolution_chain);

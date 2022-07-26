@@ -86,20 +86,27 @@ async function serviceIndividualPokemon(name) {
 
 async function servicePokemonVariations(name) {
     try {
-        const pokemonVariations = await knex('pokemon_variations')
+        let pokemonVariations = await knex('pokemon_variations')
             .select('*')
-            .where('name', 'like', `${name}-%`);
+            .where('name', 'like', `%${name}%`);
 
-        if (!pokemonVariations.length) throw {
-            message: 'Variations or Pokémon or do not exist.',
-            status: 404
+
+        if (!pokemonVariations?.length) {
+            pokemonVariations = await knex('national_pokedex')
+                .select('*')
+                .where({ name });
+
+            if (!pokemonVariations?.length) throw {
+                message: 'Variations or Pokémon or do not exist.',
+                status: 404
+            };
         };
 
         const jsonPokemonVariations = [];
         for (let pokemon of pokemonVariations) {
             const {
                 jsonPokemonData, error
-            } = await jsonParser(pokemon);
+            } = jsonParser(pokemon);
 
             if (error) throw {
                 message: error,
