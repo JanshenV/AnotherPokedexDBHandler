@@ -29,6 +29,18 @@ async function servicePokedexRegion(region) {
                 status: 500
             };
 
+            if (jsonPokemonData.name === 'metang' || jsonPokemonData.name === 'metagross') {
+                jsonPokemonData?.sprites?.forEach(genderObject => {
+                    Object.keys(genderObject).forEach(key => {
+                        if (genderObject[key]?.length) {
+                            genderObject[key] = genderObject[key].map(spriteValue => {
+                                return spriteValue.slice(57, spriteValue.length);
+                            });
+                        };
+                    });
+                });
+            };
+
             jsonPokedex.push(jsonPokemonData);
         };
         return {
