@@ -22,7 +22,7 @@ async function pokedexRegion(req, res) {
         message: serviceError.message
     });
 
-    // res.set('Cache-Control', 'public, max-age=604800');
+    res.set('Cache-Control', 'public, max-age=604800');
     return res.status(200).json(RegionalPokedex);
 };
 
@@ -40,7 +40,7 @@ async function individualPokemon(req, res) {
     if (serviceError) return res.status(serviceError.status).json({
         message: serviceError.message
     });
-    // res.set('Cache-Control', 'public, max-age=604800');
+    res.set('Cache-Control', 'public, max-age=604800');
     return res.status(200).json(PokemonData);
 };
 
@@ -59,7 +59,7 @@ async function pokemonVariation(req, res) {
         message: serviceError.message
     });
 
-    // res.set('Cache-Control', 'public, max-age=604800');
+    res.set('Cache-Control', 'public, max-age=604800');
     return res.status(200).json(PokemonVariations);
 };
 
