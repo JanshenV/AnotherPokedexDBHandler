@@ -1,6 +1,6 @@
 # Back-end for handling requests for Another Pokedex
 
-# Porguês-Brasil:
+# Português-Brasil:
 ## Iniciando Projeto:
 ### - Clone do repositório.
 ### - Iniciar comando 'npm install' na pasta raiz do projeto.
